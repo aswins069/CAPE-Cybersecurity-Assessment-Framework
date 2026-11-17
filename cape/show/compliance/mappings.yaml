@@ -1,0 +1,284 @@
+# CAPE Pillar B — Compliance Control Mapping Knowledge Base
+#
+# Each entry maps a class of finding to the compliance controls it
+# implicates. Multiple entries may match a single finding; results are
+# merged (union) by ComplianceMapper.annotate_finding().
+#
+# Fields:
+#   finding_categories: list of FindingCategory values this rule applies to.
+#                        Empty list = matches any category.
+#   severity_min:        minimum Severity (INFO/LOW/MEDIUM/HIGH/CRITICAL)
+#                         the finding must meet or exceed to match.
+#   tools:                list of source_tool values this applies to.
+#                         Empty list = matches any tool.
+#   tags_any:             if set, finding.tags must intersect this list.
+#   port_range:           [min, max] inclusive port range, optional.
+#   controls:             control IDs per framework.
+#   rationale:            human-readable justification, shown in reports.
+
+mappings:
+  # --- Generic severity-based vulnerability mapping ---
+  - finding_categories: [VULNERABILITY, SERVICE]
+    severity_min: HIGH
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 11.3.1", "Req 11.3.2"]
+      soc2: ["CC7.1", "CC7.2"]
+      iso27001: ["A.12.6.1", "A.18.2.3"]
+      nist_csf: ['ID.RA-01', 'DE.CM-08']
+      cis_controls: ['7.5', '7.6']
+    rationale: "High/critical vulnerabilities violate penetration testing and vulnerability management requirements."
+
+  - finding_categories: [VULNERABILITY]
+    severity_min: MEDIUM
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.3.1"]
+      soc2: ["CC7.1"]
+      iso27001: ["A.12.6.1"]
+      nist_csf: ['ID.RA-01']
+      cis_controls: ['7.1', '7.4']
+    rationale: "Medium-severity vulnerabilities indicate gaps in secure development and patch management."
+
+  - finding_categories: [VULNERABILITY]
+    severity_min: CRITICAL
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.2.4", "Req 11.3.1"]
+      soc2: ["CC7.1", "CC7.2", "CC7.4"]
+      iso27001: ["A.12.6.1", "A.16.1.5"]
+      nist_csf: ['ID.RA-01', 'RS.MA-01']
+      cis_controls: ['7.5', '7.7']
+    rationale: "Critical vulnerabilities require immediate remediation and incident response evaluation."
+
+  # --- Network exposure: open ports ---
+  - finding_categories: [PORT]
+    severity_min: INFO
+    port_range: [1, 1024]
+    controls:
+      pci_dss: ["Req 1.2.1", "Req 1.3.2"]
+      soc2: ["CC6.6"]
+      iso27001: ["A.13.1.1"]
+      nist_csf: ['PR.IR-01']
+      cis_controls: ['4.4', '4.5']
+    rationale: "Open ports in the privileged range must be justified and documented as part of network segmentation."
+
+  - finding_categories: [PORT]
+    severity_min: INFO
+    port_range: [1025, 65535]
+    controls:
+      pci_dss: ["Req 1.2.1"]
+      soc2: ["CC6.6"]
+      iso27001: ["A.13.1.1"]
+      nist_csf: ['ID.AM-02', 'PR.IR-01']
+      cis_controls: ['4.1', '4.4']
+    rationale: "All listening services must be inventoried and justified against the documented firewall ruleset."
+
+  # --- Remote administration exposure ---
+  - finding_categories: [SERVICE, PORT]
+    severity_min: INFO
+    port_range: [3389, 3389]
+    controls:
+      pci_dss: ["Req 1.2.1", "Req 8.4.2"]
+      soc2: ["CC6.1", "CC6.6"]
+      iso27001: ["A.9.4.2", "A.13.1.1"]
+      nist_csf: ['PR.AA-03', 'PR.IR-01']
+      cis_controls: ['4.4', '6.5']
+    rationale: "RDP exposed to the network requires MFA and strict network access controls."
+
+  - finding_categories: [SERVICE, PORT]
+    severity_min: INFO
+    port_range: [22, 22]
+    controls:
+      pci_dss: ["Req 8.4.2"]
+      soc2: ["CC6.1"]
+      iso27001: ["A.9.4.2"]
+      nist_csf: ['PR.AA-03']
+      cis_controls: ['4.4', '6.5']
+    rationale: "SSH access should be governed by MFA and key-based authentication policy."
+
+  - finding_categories: [SERVICE, PORT]
+    severity_min: INFO
+    port_range: [23, 23]
+    controls:
+      pci_dss: ["Req 2.2.2", "Req 4.2.1"]
+      soc2: ["CC6.1", "CC6.7"]
+      iso27001: ["A.13.1.1", "A.13.2.1"]
+      nist_csf: ['PR.DS-02']
+      cis_controls: ['4.4', '4.6']
+    rationale: "Telnet is an unencrypted protocol; its presence violates secure-transmission requirements."
+
+  - finding_categories: [SERVICE, PORT]
+    severity_min: INFO
+    port_range: [21, 21]
+    controls:
+      pci_dss: ["Req 4.2.1"]
+      soc2: ["CC6.7"]
+      iso27001: ["A.13.2.1"]
+      nist_csf: ['PR.DS-02']
+      cis_controls: ['4.4', '4.6']
+    rationale: "Plain FTP transmits credentials and data unencrypted."
+
+  # --- SNMP exposure ---
+  - finding_categories: [SERVICE, PORT]
+    severity_min: INFO
+    port_range: [161, 161]
+    controls:
+      pci_dss: ["Req 2.2.2"]
+      soc2: ["CC6.1"]
+      iso27001: ["A.13.1.1"]
+      nist_csf: ['PR.AA-05', 'PR.IR-01']
+      cis_controls: ['4.4', '4.8']
+    rationale: "SNMP, especially with default community strings, allows unauthorized device enumeration and configuration access."
+
+  # --- SMB ---
+  - finding_categories: [SMB]
+    severity_min: INFO
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 2.2.2", "Req 4.2.1"]
+      soc2: ["CC6.1", "CC6.6"]
+      iso27001: ["A.13.1.1", "A.13.2.1"]
+      nist_csf: ['PR.AA-05', 'PR.IR-01']
+      cis_controls: ['4.4', '4.8']
+    rationale: "SMB findings (signing disabled, null sessions, share enumeration) expose lateral movement and credential relay risk."
+
+  - finding_categories: [SMB]
+    severity_min: HIGH
+    tags_any: ["signing_disabled", "smb_signing"]
+    controls:
+      pci_dss: ["Req 4.2.1"]
+      soc2: ["CC6.7"]
+      iso27001: ["A.13.2.1"]
+      nist_csf: ['PR.DS-02', 'PR.AA-05']
+      cis_controls: ['4.4', '12.2']
+    rationale: "SMB signing disabled enables relay attacks against authenticated sessions."
+
+  # --- Web: TLS / SSL ---
+  - finding_categories: [SERVICE, VULNERABILITY]
+    severity_min: MEDIUM
+    tags_any: ["ssl", "tls", "weak_cipher", "expired_cert"]
+    controls:
+      pci_dss: ["Req 4.2.1", "Req 4.2.1.1"]
+      soc2: ["CC6.7"]
+      iso27001: ["A.13.2.1", "A.10.1.1"]
+      nist_csf: ['PR.DS-02']
+      cis_controls: ['3.10', '4.6']
+    rationale: "Weak or expired TLS configuration fails to protect data in transit."
+
+  # --- Web: security headers ---
+  - finding_categories: [HEADER]
+    severity_min: INFO
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.4.1"]
+      soc2: ["CC6.6"]
+      iso27001: ["A.14.2.5"]
+      nist_csf: ['PR.PS-01']
+      cis_controls: ['16.1', '16.11']
+    rationale: "Missing security headers (CSP, HSTS, X-Frame-Options) weaken browser-side defenses against common web attacks."
+
+  # --- Web: directory listing / exposed paths ---
+  - finding_categories: [DIRECTORY]
+    severity_min: LOW
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.4.1", "Req 1.3.2"]
+      soc2: ["CC6.6"]
+      iso27001: ["A.14.1.2"]
+      nist_csf: ['PR.PS-01', 'ID.AM-02']
+      cis_controls: ['3.3', '16.1']
+    rationale: "Exposed directories or backup/admin paths increase the attack surface and may disclose sensitive files."
+
+  # --- CMS: outdated software / plugins ---
+  - finding_categories: [CMS]
+    severity_min: MEDIUM
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.3.1", "Req 6.3.3"]
+      soc2: ["CC7.1"]
+      iso27001: ["A.12.6.1"]
+      nist_csf: ['ID.RA-01', 'PR.PS-02']
+      cis_controls: ['7.1', '7.4']
+    rationale: "Outdated CMS core or plugins are a common initial-access vector and must be tracked under patch management."
+
+  # --- Default / weak credentials ---
+  - finding_categories: [CREDENTIAL_HINT]
+    severity_min: LOW
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 8.3.6", "Req 8.6.3"]
+      soc2: ["CC6.1"]
+      iso27001: ["A.9.2.4", "A.9.4.3"]
+      nist_csf: ['PR.AA-01']
+      cis_controls: ['5.2', '5.3']
+    rationale: "Default or weak credentials directly violate authentication strength requirements."
+
+  - finding_categories: [CREDENTIAL_HINT]
+    severity_min: HIGH
+    tags_any: ["default_credentials", "default_creds"]
+    controls:
+      pci_dss: ["Req 2.2.2", "Req 8.3.6"]
+      soc2: ["CC6.1", "CC6.3"]
+      iso27001: ["A.9.2.4"]
+      nist_csf: ['PR.AA-01']
+      cis_controls: ['5.2', '5.4']
+    rationale: "Default vendor credentials left active are a critical, immediately exploitable authentication failure."
+
+  # --- SQL Injection ---
+  - finding_categories: [VULNERABILITY]
+    severity_min: HIGH
+    tags_any: ["sqli", "sql_injection"]
+    controls:
+      pci_dss: ["Req 6.2.4", "Req 6.4.2"]
+      soc2: ["CC7.1", "CC6.1"]
+      iso27001: ["A.14.2.1", "A.14.2.5"]
+      nist_csf: ['PR.PS-06']
+      cis_controls: ['16.1', '16.14']
+    rationale: "SQL injection allows unauthorized data access/modification and violates secure coding requirements."
+
+  # --- XSS ---
+  - finding_categories: [VULNERABILITY]
+    severity_min: MEDIUM
+    tags_any: ["xss", "cross_site_scripting"]
+    controls:
+      pci_dss: ["Req 6.2.4", "Req 6.4.2"]
+      soc2: ["CC7.1"]
+      iso27001: ["A.14.2.1"]
+      nist_csf: ['PR.PS-06']
+      cis_controls: ['16.1', '16.14']
+    rationale: "Cross-site scripting compromises session integrity and client-side trust boundaries."
+
+  # --- API endpoints ---
+  - finding_categories: [API_ENDPOINT]
+    severity_min: LOW
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 6.4.1", "Req 8.4.2"]
+      soc2: ["CC6.1", "CC6.6"]
+      iso27001: ["A.14.1.2", "A.9.4.2"]
+      nist_csf: ['PR.AA-05', 'PR.PS-06']
+      cis_controls: ['4.6', '16.1']
+    rationale: "Exposed or unauthenticated API endpoints extend the attack surface beyond the primary web application."
+
+  # --- Wireless ---
+  - finding_categories: [WIRELESS]
+    severity_min: LOW
+    tools: []
+    tags_any: []
+    controls:
+      pci_dss: ["Req 1.2.1", "Req 4.2.1"]
+      soc2: ["CC6.1", "CC6.6"]
+      iso27001: ["A.13.1.1", "A.13.2.1"]
+      nist_csf: ['PR.DS-02', 'PR.IR-01']
+      cis_controls: ['4.6', '15.4']
+    rationale: "Weak wireless encryption or open networks can bypass perimeter network controls entirely."

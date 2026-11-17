@@ -1,0 +1,36 @@
+name: network_assessment
+domain: NETWORK
+steps:
+  - name: Port Discovery
+    description: Full port scan to discover all open services
+    tool: masscan
+    tool_args_template: "masscan {target} -p 1-65535 --rate 1000"
+    produces: [open_ports]
+    duration_seconds: 600
+    requires_previous: false
+    operator_action_required: false
+
+  - name: Service Fingerprinting
+    description: Identify services and versions on open ports
+    tool: nmap
+    tool_args_template: "nmap -sV -sC -p- {target} -oX /tmp/nmap_{target}.xml"
+    consumes: [open_ports]
+    produces: [services]
+    duration_seconds: 900
+    operator_action_required: false
+
+  - name: SNMP Enumeration
+    description: Enumerate SNMP community strings and system information
+    tool: snmp-check
+    tool_args_template: "snmp-check {target} -c public -v 2c"
+    produces: [snmp_data]
+    duration_seconds: 120
+    operator_action_required: false
+
+  - name: RDP Assessment
+    description: Assess RDP configuration and NLA enforcement
+    tool: nmap
+    tool_args_template: "nmap -p 3389 --script rdp-enum-encryption {target}"
+    produces: [rdp_config]
+    duration_seconds: 60
+    operator_action_required: false

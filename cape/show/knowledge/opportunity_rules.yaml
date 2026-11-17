@@ -1,0 +1,164 @@
+- id: "opp-sqli-001"
+  name: "SQL Injection Assessment"
+  domain: "WEB"
+  base_score: 8.5
+  conditions:
+    - field: "service"
+      operator: "IN"
+      value: ["http", "https"]
+    - field: "port"
+      operator: "IN"
+      value: [80, 443, 8080, 8443, 8000]
+  required_findings: ["SERVICE", "PORT"]
+  score_formula: "base * confidence * severity_weight"
+  recommended_modules: ["SQLiModule", "DirectoryEnumerationModule", "HTTPHeadersModule"]
+
+- id: "opp-xss-001"
+  name: "Cross-Site Scripting Assessment"
+  domain: "WEB"
+  base_score: 6.5
+  conditions:
+    - field: "service"
+      operator: "IN"
+      value: ["http", "https"]
+  required_findings: ["SERVICE"]
+  score_formula: "base * confidence * severity_weight"
+  recommended_modules: ["XSSModule", "DirectoryEnumerationModule", "HTTPHeadersModule"]
+
+- id: "opp-smb-relay-001"
+  name: "SMB Relay Attack"
+  domain: "SMB"
+  base_score: 8.8
+  conditions:
+    - field: "category"
+      operator: "EQUALS"
+      value: "SMB"
+    - field: "port"
+      operator: "IN"
+      value: [445, 139]
+  required_findings: ["SMB"]
+  score_formula: "base * confidence * severity_weight"
+  recommended_modules: ["SMBModule"]
+
+- id: "opp-default-creds-001"
+  name: "Default Credentials Test"
+  domain: "AUTH"
+  base_score: 9.0
+  conditions:
+    - field: "port"
+      operator: "IN"
+      value: [21, 22, 23, 80, 443, 3306, 5432, 6379, 27017, 8080]
+    - field: "category"
+      operator: "EQUALS"
+      value: "PORT"
+  required_findings: ["PORT"]
+  score_formula: "base * confidence"
+  recommended_modules: ["AuthModule"]
+
+- id: "opp-lfi-001"
+  name: "Local File Inclusion"
+  domain: "WEB"
+  base_score: 7.5
+  conditions:
+    - field: "service"
+      operator: "EQUALS"
+      value: "http"
+    - field: "tags"
+      operator: "CONTAINS"
+      value: "php"
+  required_findings: ["SERVICE"]
+  score_formula: "base * confidence * severity_weight"
+  recommended_modules: ["SQLiModule"]
+
+- id: "opp-wordpress-001"
+  name: "WordPress Compromise Assessment"
+  domain: "CMS"
+  base_score: 8.0
+  conditions:
+    - field: "category"
+      operator: "EQUALS"
+      value: "CMS"
+    - field: "tags"
+      operator: "CONTAINS"
+      value: "wordpress"
+  required_findings: ["CMS"]
+  score_formula: "base * confidence"
+  recommended_modules: ["CMSModule"]
+
+- id: "opp-api-auth-001"
+  name: "API Authentication Weakness"
+  domain: "API"
+  base_score: 8.0
+  conditions:
+    - field: "category"
+      operator: "EQUALS"
+      value: "API_ENDPOINT"
+  required_findings: ["API_ENDPOINT"]
+  score_formula: "base * confidence"
+  recommended_modules: ["APIModule"]
+
+- id: "opp-ssh-brute-001"
+  name: "SSH Brute Force Feasibility"
+  domain: "AUTH"
+  base_score: 6.5
+  conditions:
+    - field: "port"
+      operator: "EQUALS"
+      value: 22
+    - field: "service"
+      operator: "EQUALS"
+      value: "ssh"
+  required_findings: ["PORT"]
+  score_formula: "base * confidence"
+  recommended_modules: ["AuthModule"]
+
+- id: "opp-snmp-001"
+  name: "SNMP Community String Exposure"
+  domain: "NETWORK"
+  base_score: 7.0
+  conditions:
+    - field: "port"
+      operator: "EQUALS"
+      value: 161
+    - field: "protocol"
+      operator: "EQUALS"
+      value: "udp"
+  required_findings: ["PORT"]
+  score_formula: "base * confidence"
+  recommended_modules: ["NetworkModule"]
+
+- id: "opp-rdp-001"
+  name: "RDP Exposure Assessment"
+  domain: "NETWORK"
+  base_score: 7.8
+  conditions:
+    - field: "port"
+      operator: "EQUALS"
+      value: 3389
+  required_findings: ["PORT"]
+  score_formula: "base * confidence"
+  recommended_modules: ["NetworkModule"]
+
+- id: "opp-directory-traversal-001"
+  name: "Directory Traversal / LFI"
+  domain: "WEB"
+  base_score: 6.8
+  conditions:
+    - field: "category"
+      operator: "EQUALS"
+      value: "DIRECTORY"
+  required_findings: ["DIRECTORY"]
+  score_formula: "base * confidence"
+  recommended_modules: ["SQLiModule"]
+
+- id: "opp-cms-generic-001"
+  name: "CMS Vulnerability Assessment"
+  domain: "CMS"
+  base_score: 7.0
+  conditions:
+    - field: "category"
+      operator: "EQUALS"
+      value: "CMS"
+  required_findings: ["CMS"]
+  score_formula: "base * confidence"
+  recommended_modules: ["CMSModule"]

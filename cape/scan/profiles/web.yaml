@@ -1,0 +1,32 @@
+name: web
+description: "Web application assessment - tech fingerprinting, vuln scanning, dir enumeration"
+scan_timeout: 1800
+plugin_timeout: 600
+
+plugin_groups:
+  - name: web_fingerprint
+    plugins: [whatweb]
+    concurrency: sequential
+  - name: web_scanners
+    plugins: [nikto, gobuster, dirb]
+    concurrency: thread_pool
+    max_workers: 3
+  - name: web_vuln
+    plugins: [zap]
+    concurrency: sequential
+
+plugins:
+  whatweb:
+    extra_args: []
+  nikto:
+    ports: "80,443,8080,8443"
+  gobuster:
+    wordlist: /usr/share/wordlists/dirb/common.txt
+    custom:
+      mode: dir
+  dirb:
+    wordlist: /usr/share/dirb/wordlists/common.txt
+  zap:
+    extra_args: []
+
+conditionals: {}

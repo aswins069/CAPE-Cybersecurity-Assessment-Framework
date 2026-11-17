@@ -1,0 +1,74 @@
+- service_pattern: "^(http|nginx|apache|iis|lighttpd)"
+  port_range: [80, 443]
+  implied_opportunities: ["opp-sqli-001", "opp-xss-001", "opp-lfi-001"]
+  risk_modifier: 1.2
+
+- service_pattern: "^(smb|microsoft-ds|netbios)"
+  port_range: [139, 445]
+  implied_opportunities: ["opp-smb-relay-001"]
+  risk_modifier: 1.5
+
+- service_pattern: "^ssh"
+  port_range: [22, 22]
+  implied_opportunities: ["opp-ssh-brute-001"]
+  risk_modifier: 1.0
+
+- service_pattern: "^(ftp|vsftpd|proftpd)"
+  port_range: [21, 21]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 1.3
+
+- service_pattern: "^(mysql|mariadb)"
+  port_range: [3306, 3306]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 1.4
+
+- service_pattern: "^(postgresql|postgres)"
+  port_range: [5432, 5432]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 1.2
+
+- service_pattern: "^(redis)"
+  port_range: [6379, 6379]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 1.6
+
+- service_pattern: "^(mongodb|mongo)"
+  port_range: [27017, 27017]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 1.5
+
+- service_pattern: "^(snmp)"
+  port_range: [161, 162]
+  implied_opportunities: ["opp-snmp-001"]
+  risk_modifier: 1.3
+
+- service_pattern: "^(rdp|ms-wbt-server|terminal)"
+  port_range: [3389, 3389]
+  implied_opportunities: ["opp-rdp-001"]
+  risk_modifier: 1.4
+
+- service_pattern: "^(telnet)"
+  port_range: [23, 23]
+  implied_opportunities: ["opp-default-creds-001"]
+  risk_modifier: 2.0
+
+- service_pattern: "^(wordpress|wp)"
+  port_range: null
+  implied_opportunities: ["opp-wordpress-001", "opp-sqli-001"]
+  risk_modifier: 1.3
+
+- service_pattern: "^(drupal)"
+  port_range: null
+  implied_opportunities: ["opp-cms-generic-001", "opp-sqli-001"]
+  risk_modifier: 1.2
+
+- service_pattern: "^(joomla)"
+  port_range: null
+  implied_opportunities: ["opp-cms-generic-001", "opp-sqli-001"]
+  risk_modifier: 1.2
+
+- service_pattern: "^(tomcat|jboss|glassfish|weblogic)"
+  port_range: [8080, 8443]
+  implied_opportunities: ["opp-sqli-001", "opp-default-creds-001"]
+  risk_modifier: 1.5

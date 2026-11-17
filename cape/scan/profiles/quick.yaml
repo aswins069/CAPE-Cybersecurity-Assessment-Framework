@@ -1,0 +1,23 @@
+name: quick
+description: "Fast reconnaissance scan - top 1000 ports, service fingerprinting"
+scan_timeout: 600
+plugin_timeout: 300
+
+plugin_groups:
+  - name: port_scanners
+    plugins: [nmap]
+    concurrency: sequential
+  - name: web_fingerprint
+    plugins: [whatweb]
+    concurrency: thread_pool
+    max_workers: 2
+
+plugins:
+  nmap:
+    extra_args: []
+    custom:
+      profile: quick
+  whatweb:
+    extra_args: []
+
+conditionals: {}

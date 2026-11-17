@@ -1,0 +1,34 @@
+name: recon
+description: "Full reconnaissance - all ports, masscan, service enumeration"
+scan_timeout: 1800
+plugin_timeout: 600
+
+plugin_groups:
+  - name: port_scanners
+    plugins: [masscan, nmap]
+    concurrency: sequential
+    comment: "Never run masscan and nmap simultaneously - they conflict"
+  - name: web_fingerprint
+    plugins: [whatweb]
+    concurrency: thread_pool
+    max_workers: 2
+  - name: smb_enum
+    plugins: [enum4linux]
+    concurrency: sequential
+
+plugins:
+  nmap:
+    custom:
+      profile: recon
+    extra_args: []
+  masscan:
+    ports: "1-65535"
+    rate: 1000
+  whatweb:
+    extra_args: []
+  enum4linux:
+    extra_args: []
+
+conditionals:
+  enum4linux:
+    requires_service: smb

@@ -1,0 +1,29 @@
+{
+  "banner": {"description": "WordPress Security Scanner"},
+  "target_url": "http://192.168.1.100",
+  "target_ip": "192.168.1.100",
+  "effective_url": "http://192.168.1.100/",
+  "interesting_findings": [],
+  "version": {
+    "number": "5.8.1",
+    "release_date": "2021-09-09",
+    "status": "outdated",
+    "vulnerabilities": [
+      {
+        "title": "WordPress < 5.8.3 - SQL Injection via WP_Query",
+        "fixed_in": "5.8.3",
+        "references": {"cve": [{"url": "https://nvd.nist.gov/vuln/detail/CVE-2022-21661"}], "url": []}
+      }
+    ]
+  },
+  "plugins": {
+    "contact-form-7": {
+      "slug": "contact-form-7",
+      "location": "http://192.168.1.100/wp-content/plugins/contact-form-7/",
+      "version": {"number": "5.4.1", "confidence": 100, "found_by": "Readme"},
+      "vulnerabilities": []
+    }
+  },
+  "themes": {},
+  "users": [{"username": "admin", "found_by": "Author Posts Url"}]
+}

@@ -1,0 +1,16 @@
+name: vuln
+description: "Vulnerability-focused scan using NSE vuln scripts and nikto"
+scan_timeout: 2400
+plugin_timeout: 900
+plugin_groups:
+  - name: vuln_scanners
+    plugins: [nmap, nikto]
+    concurrency: thread_pool
+    max_workers: 2
+plugins:
+  nmap:
+    custom:
+      profile: vuln
+  nikto:
+    extra_args: []
+conditionals: {}

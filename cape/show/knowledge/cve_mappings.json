@@ -1,0 +1,32 @@
+{
+  "CVE-2021-44228": {
+    "name": "Log4Shell",
+    "attack_pattern_ids": ["web-sqli-001"],
+    "cvss": 10.0,
+    "description": "Remote code execution in Apache Log4j2"
+  },
+  "CVE-2019-0708": {
+    "name": "BlueKeep",
+    "attack_pattern_ids": ["network-rdp-001"],
+    "cvss": 9.8,
+    "description": "Remote code execution in Windows RDP"
+  },
+  "CVE-2017-0144": {
+    "name": "EternalBlue",
+    "attack_pattern_ids": ["smb-relay-001"],
+    "cvss": 9.3,
+    "description": "Remote code execution via SMB"
+  },
+  "CVE-2021-3156": {
+    "name": "Baron Samedit (sudo)",
+    "attack_pattern_ids": ["auth-default-creds-001"],
+    "cvss": 7.8,
+    "description": "Heap overflow in sudo allowing privilege escalation"
+  },
+  "CVE-2020-1472": {
+    "name": "ZeroLogon",
+    "attack_pattern_ids": ["smb-relay-001"],
+    "cvss": 10.0,
+    "description": "Netlogon privilege escalation"
+  }
+}

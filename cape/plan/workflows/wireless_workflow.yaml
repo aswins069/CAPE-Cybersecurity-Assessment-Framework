@@ -1,0 +1,21 @@
+name: wireless_assessment
+domain: WIRELESS
+steps:
+  - name: Wireless Network Discovery
+    description: Discover wireless networks in range
+    tool: kismet
+    tool_args_template: "kismet --no-ncurses"
+    produces: [wireless_networks]
+    duration_seconds: 300
+    requires_previous: false
+    operator_action_required: false
+
+  - name: WPA Handshake Capture
+    description: Capture WPA authentication handshakes for analysis
+    tool: aircrack-ng
+    tool_args_template: "airodump-ng {interface}"
+    consumes: [wireless_networks]
+    produces: [handshakes]
+    duration_seconds: 600
+    operator_action_required: true
+    notes: "Requires monitor mode capable wireless adapter. Only capture from authorized networks."

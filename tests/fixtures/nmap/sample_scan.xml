@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<nmaprun scanner="nmap" args="nmap -T4 -sV -sC -F 192.168.1.100" start="1700000000" version="7.94">
+  <host starttime="1700000000" endtime="1700000050">
+    <status state="up" reason="echo-reply"/>
+    <address addr="192.168.1.100" addrtype="ipv4"/>
+    <hostnames>
+      <hostname name="testserver.local" type="PTR"/>
+    </hostnames>
+    <ports>
+      <port protocol="tcp" portid="22">
+        <state state="open" reason="syn-ack"/>
+        <service name="ssh" product="OpenSSH" version="7.9" extrainfo="protocol 2.0"/>
+        <script id="ssh-hostkey" output="&#xa;  2048 aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa (RSA)"/>
+      </port>
+      <port protocol="tcp" portid="80">
+        <state state="open" reason="syn-ack"/>
+        <service name="http" product="Apache httpd" version="2.4.41" extrainfo="(Ubuntu)"/>
+        <script id="http-title" output="Apache2 Ubuntu Default Page"/>
+        <script id="http-server-header" output="Apache/2.4.41 (Ubuntu)"/>
+      </port>
+      <port protocol="tcp" portid="443">
+        <state state="open" reason="syn-ack"/>
+        <service name="https" product="Apache httpd" version="2.4.41" tunnel="ssl"/>
+      </port>
+      <port protocol="tcp" portid="445">
+        <state state="open" reason="syn-ack"/>
+        <service name="microsoft-ds" product="Samba smbd" version="4.x"/>
+        <script id="smb-security-mode" output="&#xa;  account_used: guest&#xa;  authentication_level: user&#xa;  challenge_response: supported&#xa;  message_signing: disabled (dangerous, but default)"/>
+        <script id="smb2-security-mode" output="&#xa;  2.02:&#xa;    Message signing enabled but not required"/>
+      </port>
+      <port protocol="tcp" portid="3306">
+        <state state="open" reason="syn-ack"/>
+        <service name="mysql" product="MySQL" version="5.7.32"/>
+      </port>
+    </ports>
+  </host>
+</nmaprun>

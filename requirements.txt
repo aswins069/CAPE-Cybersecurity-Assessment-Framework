@@ -1,0 +1,46 @@
+# CAPE core and development dependencies
+# Install with: python -m pip install -r requirements.txt
+# Or install the package and dependencies with: python -m pip install -e ".[dev]"
+
+# Core CLI and display
+typer[all]>=0.12
+rich>=13.7
+prompt_toolkit>=3.0
+click>=8.1
+
+# Data validation and settings
+pydantic>=2.6
+pydantic-settings>=2.2
+
+# Database and migrations
+sqlalchemy>=2.0
+alembic>=1.13
+
+# Parsing and serialization
+xmltodict>=0.13
+PyYAML>=6.0
+python-dateutil>=2.9
+
+# Templating and graph analysis
+jinja2>=3.1
+networkx>=3.2
+
+# PDF generation
+weasyprint>=61
+
+# AI-assisted explain/remediation narration
+google-genai>=0.3
+
+# Development and testing
+pytest>=8.0
+pytest-asyncio>=0.23
+pytest-cov>=4.1
+factory-boy>=3.3
+black>=24.0
+isort>=5.13
+mypy>=1.8
+ruff>=0.3
+
+# Optional extras are declared in pyproject.toml:
+# PostgreSQL: python -m pip install -e ".[postgres]"
+# Graphviz:   python -m pip install -e ".[graphviz]"

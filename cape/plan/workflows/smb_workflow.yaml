@@ -1,0 +1,38 @@
+name: smb_assessment
+domain: SMB
+steps:
+  - name: SMB Port Scan
+    description: Confirm SMB ports and enumerate services
+    tool: nmap
+    tool_args_template: "nmap -p 139,445 -sV --script smb-security-mode,smb2-security-mode {target}"
+    produces: [smb_services]
+    duration_seconds: 120
+    requires_previous: false
+    operator_action_required: false
+
+  - name: SMB Enumeration
+    description: Enumerate SMB shares, users, and security settings
+    tool: enum4linux
+    tool_args_template: "enum4linux -a {target}"
+    consumes: [smb_services]
+    produces: [smb_enum]
+    duration_seconds: 300
+    operator_action_required: false
+
+  - name: SMB Signing Check
+    description: Verify if SMB message signing is enforced
+    tool: nmap
+    tool_args_template: "nmap -p 445 --script smb-security-mode {target}"
+    produces: [smb_signing]
+    duration_seconds: 60
+    operator_action_required: false
+
+  - name: SMB Relay Assessment
+    description: If signing disabled, assess relay attack feasibility
+    tool: null
+    tool_args_template: null
+    consumes: [smb_signing]
+    produces: [relay_assessment]
+    duration_seconds: 600
+    operator_action_required: true
+    notes: "Use responder + ntlmrelayx in lab. DO NOT run against live production without written consent."

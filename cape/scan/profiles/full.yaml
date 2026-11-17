@@ -1,0 +1,59 @@
+name: full
+description: "Full assessment - all stages, intelligently sequenced"
+scan_timeout: 7200
+plugin_timeout: 900
+plugin_groups:
+  - name: initial_recon
+    plugins: [nmap, masscan]
+    concurrency: sequential
+    comment: "Recon first - needed for conditional execution"
+  - name: web_fingerprint
+    plugins: [whatweb]
+    concurrency: thread_pool
+    max_workers: 2
+  - name: web_deep
+    plugins: [nikto, gobuster, dirb, zap]
+    concurrency: thread_pool
+    max_workers: 3
+  - name: cms_scan
+    plugins: [wpscan]
+    concurrency: sequential
+  - name: smb_enum
+    plugins: [enum4linux]
+    concurrency: sequential
+  - name: network_services
+    plugins: [snmp-check]
+    concurrency: thread_pool
+    max_workers: 2
+plugins:
+  nmap:
+    custom:
+      profile: recon
+  masscan:
+    ports: "1-65535"
+    rate: 1500
+  whatweb:
+    extra_args: []
+  nikto:
+    extra_args: []
+  gobuster:
+    wordlist: /usr/share/wordlists/dirb/common.txt
+    custom:
+      mode: dir
+  dirb:
+    wordlist: /usr/share/dirb/wordlists/common.txt
+  zap:
+    extra_args: []
+  wpscan:
+    extra_args: []
+  enum4linux:
+    extra_args: ["-a"]
+  snmp-check:
+    extra_args: []
+conditionals:
+  enum4linux:
+    requires_service: smb
+  wpscan:
+    requires_service: http
+  snmp-check:
+    requires_service: snmp

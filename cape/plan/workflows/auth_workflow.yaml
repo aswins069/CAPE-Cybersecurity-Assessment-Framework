@@ -1,0 +1,30 @@
+name: auth_assessment
+domain: AUTH
+steps:
+  - name: Service Discovery
+    description: Identify all authentication-required services
+    tool: nmap
+    tool_args_template: "nmap -sV -p 21,22,23,80,443,3389,5900 {target}"
+    produces: [auth_services]
+    duration_seconds: 120
+    requires_previous: false
+    operator_action_required: false
+
+  - name: Default Credential Testing
+    description: Test services for default factory credentials
+    tool: null
+    tool_args_template: null
+    consumes: [auth_services]
+    produces: [default_cred_results]
+    duration_seconds: 600
+    operator_action_required: true
+    notes: "Use hydra or medusa against discovered services with default credential lists"
+
+  - name: Password Policy Review
+    description: Assess password policy and lockout mechanisms
+    tool: null
+    tool_args_template: null
+    produces: [policy_review]
+    duration_seconds: 300
+    operator_action_required: true
+    notes: "Document lockout thresholds, complexity requirements, reset mechanisms"

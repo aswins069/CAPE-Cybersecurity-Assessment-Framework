@@ -1,0 +1,213 @@
+[
+  {
+    "id": "web-sqli-001",
+    "name": "SQL Injection",
+    "domain": "WEB",
+    "description": "SQL injection vulnerabilities allow attackers to manipulate backend database queries, potentially leading to authentication bypass, data exfiltration, and remote code execution.",
+    "mitre_technique": "T1190",
+    "cvss_base": 9.8,
+    "indicator_rules": [
+      {
+        "finding_category": "SERVICE",
+        "conditions": [
+          {"field": "service", "operator": "IN", "value": ["http", "https"]},
+          {"field": "port", "operator": "IN", "value": [80, 443, 8080, 8443]}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://owasp.org/www-community/attacks/SQL_Injection",
+      "https://attack.mitre.org/techniques/T1190/"
+    ]
+  },
+  {
+    "id": "web-xss-001",
+    "name": "Cross-Site Scripting (XSS)",
+    "domain": "WEB",
+    "description": "XSS vulnerabilities enable injection of client-side scripts into web pages viewed by other users, enabling session hijacking, credential theft, and phishing.",
+    "mitre_technique": "T1059.007",
+    "cvss_base": 6.1,
+    "indicator_rules": [
+      {
+        "finding_category": "SERVICE",
+        "conditions": [
+          {"field": "service", "operator": "IN", "value": ["http", "https"]}
+        ],
+        "weight": 0.8
+      }
+    ],
+    "references": [
+      "https://owasp.org/www-community/attacks/xss/",
+      "https://attack.mitre.org/techniques/T1059/007/"
+    ]
+  },
+  {
+    "id": "smb-relay-001",
+    "name": "SMB Relay Attack",
+    "domain": "SMB",
+    "description": "When SMB signing is disabled, an attacker can intercept NTLM authentication and relay credentials to other systems, leading to lateral movement and privilege escalation.",
+    "mitre_technique": "T1557.001",
+    "cvss_base": 8.8,
+    "indicator_rules": [
+      {
+        "finding_category": "SMB",
+        "conditions": [
+          {"field": "port", "operator": "IN", "value": [445, 139]},
+          {"field": "tags", "operator": "CONTAINS", "value": "signing"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://attack.mitre.org/techniques/T1557/001/",
+      "https://www.crowdstrike.com/cybersecurity-101/credential-theft/ntlm-relay-attack/"
+    ]
+  },
+  {
+    "id": "auth-default-creds-001",
+    "name": "Default Credentials",
+    "domain": "AUTH",
+    "description": "Services using default factory credentials are vulnerable to trivial authentication bypass, providing immediate access to sensitive systems.",
+    "mitre_technique": "T1078.001",
+    "cvss_base": 9.8,
+    "indicator_rules": [
+      {
+        "finding_category": "SERVICE",
+        "conditions": [
+          {"field": "port", "operator": "IN", "value": [21, 22, 23, 80, 443, 3306, 5432, 6379, 27017]}
+        ],
+        "weight": 0.9
+      }
+    ],
+    "references": [
+      "https://attack.mitre.org/techniques/T1078/001/"
+    ]
+  },
+  {
+    "id": "web-lfi-001",
+    "name": "Local File Inclusion (LFI)",
+    "domain": "WEB",
+    "description": "LFI allows attackers to include files from the server filesystem in application output, enabling disclosure of sensitive files like /etc/passwd and potentially RCE via log poisoning.",
+    "mitre_technique": "T1083",
+    "cvss_base": 7.5,
+    "indicator_rules": [
+      {
+        "finding_category": "SERVICE",
+        "conditions": [
+          {"field": "service", "operator": "EQUALS", "value": "http"},
+          {"field": "tags", "operator": "CONTAINS", "value": "php"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/11.1-Testing_for_Local_File_Inclusion"
+    ]
+  },
+  {
+    "id": "cms-wordpress-001",
+    "name": "WordPress Compromise",
+    "domain": "CMS",
+    "description": "Outdated WordPress installations with vulnerable plugins/themes are prime targets for exploitation including RCE, admin takeover, and data theft.",
+    "mitre_technique": "T1190",
+    "cvss_base": 8.8,
+    "indicator_rules": [
+      {
+        "finding_category": "CMS",
+        "conditions": [
+          {"field": "tags", "operator": "CONTAINS", "value": "wordpress"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://wpscan.com/wordpresses/",
+      "https://attack.mitre.org/techniques/T1190/"
+    ]
+  },
+  {
+    "id": "api-auth-weak-001",
+    "name": "API Authentication Weakness",
+    "domain": "API",
+    "description": "API endpoints without proper authentication allow unauthorized access to sensitive data and operations, often enabling account takeover and data exfiltration.",
+    "mitre_technique": "T1552",
+    "cvss_base": 8.6,
+    "indicator_rules": [
+      {
+        "finding_category": "API_ENDPOINT",
+        "conditions": [
+          {"field": "tags", "operator": "CONTAINS", "value": "api"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://owasp.org/www-project-api-security/",
+      "https://attack.mitre.org/techniques/T1552/"
+    ]
+  },
+  {
+    "id": "auth-ssh-brute-001",
+    "name": "SSH Brute Force Feasibility",
+    "domain": "AUTH",
+    "description": "SSH services with weak configurations, known usernames, or password authentication enabled may be susceptible to brute-force attacks.",
+    "mitre_technique": "T1110.001",
+    "cvss_base": 7.3,
+    "indicator_rules": [
+      {
+        "finding_category": "PORT",
+        "conditions": [
+          {"field": "port", "operator": "EQUALS", "value": 22},
+          {"field": "service", "operator": "EQUALS", "value": "ssh"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://attack.mitre.org/techniques/T1110/001/"
+    ]
+  },
+  {
+    "id": "network-snmp-001",
+    "name": "SNMP Community String Exposure",
+    "domain": "NETWORK",
+    "description": "SNMP with default community strings exposes extensive system information and may allow configuration changes.",
+    "mitre_technique": "T1046",
+    "cvss_base": 7.5,
+    "indicator_rules": [
+      {
+        "finding_category": "SERVICE",
+        "conditions": [
+          {"field": "port", "operator": "EQUALS", "value": 161},
+          {"field": "protocol", "operator": "EQUALS", "value": "udp"}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://attack.mitre.org/techniques/T1046/"
+    ]
+  },
+  {
+    "id": "network-rdp-001",
+    "name": "RDP Exposure",
+    "domain": "NETWORK",
+    "description": "Exposed RDP without Network Level Authentication (NLA) is vulnerable to brute force, credential stuffing, and known RDP vulnerabilities including BlueKeep.",
+    "mitre_technique": "T1021.001",
+    "cvss_base": 8.1,
+    "indicator_rules": [
+      {
+        "finding_category": "PORT",
+        "conditions": [
+          {"field": "port", "operator": "EQUALS", "value": 3389}
+        ],
+        "weight": 1.0
+      }
+    ],
+    "references": [
+      "https://attack.mitre.org/techniques/T1021/001/",
+      "https://nvd.nist.gov/vuln/detail/CVE-2019-0708"
+    ]
+  }
+]

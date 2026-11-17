@@ -1,0 +1,290 @@
+# CAPE remediation catalog.
+#
+# Keyed by attack_pattern id (see show/knowledge/attack_patterns.json).
+# Each entry lists countermeasures grouped by stage:
+#   immediate  - stop the bleeding, hours, usually config/access changes
+#   short_term - proper fix, days/weeks, usually a code or infra change
+#   long_term  - prevents the whole class of bug recurring, weeks/ongoing
+#
+# `domain_fallback` entries are used when an opportunity has no specific
+# attack_pattern match (e.g. a custom rule), keyed by AttackDomain value.
+
+patterns:
+  web-sqli-001:
+    verification_steps:
+      - "Re-run the SQLi scan/plugin against the same endpoint and confirm no injectable parameters remain."
+      - "Attempt the original payload manually (in an authorized test window) and confirm it now fails safely."
+      - "Review application logs for parameterized-query usage; confirm no string-concatenated SQL remains in the changed code path."
+    countermeasures:
+      - title: "Block the vulnerable endpoint / apply a WAF rule"
+        description: "Add a WAF or reverse-proxy rule blocking known SQLi patterns for the affected parameter(s) while the code fix is developed."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1050"
+        references: ["https://owasp.org/www-community/attacks/SQL_Injection"]
+      - title: "Switch to parameterized queries / prepared statements"
+        description: "Replace all string-concatenated SQL for the affected code path with parameterized queries or an ORM that escapes input by default."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1042"
+        references: ["https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"]
+      - title: "Adopt least-privilege DB accounts and input-validation standards"
+        description: "Run the application DB user with only the privileges it needs (no DROP/ALTER), and add static-analysis / SAST rules that flag string-built SQL in CI."
+        stage: long_term
+        effort: high
+        mitre_mitigation: "M1026"
+
+  web-xss-001:
+    verification_steps:
+      - "Re-submit the original XSS payload and confirm it is now rendered as inert text, not executed."
+      - "Check response headers for a Content-Security-Policy that blocks inline script execution."
+    countermeasures:
+      - title: "Context-aware output encoding"
+        description: "Encode all user-controlled output for the context it's rendered in (HTML body, attribute, JS, URL) using the framework's built-in escaping."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1042"
+        references: ["https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"]
+      - title: "Deploy a strict Content-Security-Policy"
+        description: "Add a CSP header disallowing inline scripts and unsafe-eval, with a report-uri to catch violations."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1050"
+      - title: "Adopt an auto-escaping template engine and sanitize rich-text input"
+        description: "Standardize on a template engine that escapes by default, and run any HTML the app must accept through a sanitizer allow-list (e.g. DOMPurify)."
+        stage: long_term
+        effort: medium
+
+  smb-relay-001:
+    verification_steps:
+      - "Re-run the SMB relay check and confirm SMB signing is now required and enforced on the target and relay path."
+      - "Attempt a relay against a test host in the same segment and confirm it is rejected."
+    countermeasures:
+      - title: "Enforce SMB signing on affected hosts"
+        description: "Set 'Microsoft network server: Digitally sign communications (always)' via GPO on all Windows hosts in the affected segment."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1030"
+        references: ["https://attack.mitre.org/techniques/T1557/001/"]
+      - title: "Disable NTLM where SMB signing isn't sufficient"
+        description: "Restrict or disable NTLM authentication in favor of Kerberos for internal services that support it."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1032"
+      - title: "Segment the network to limit relay paths"
+        description: "Place workstations and servers in separate segments so a compromised workstation cannot relay credentials to high-value servers."
+        stage: long_term
+        effort: high
+        mitre_mitigation: "M1030"
+
+  auth-default-creds-001:
+    verification_steps:
+      - "Attempt authentication with the known default credential set and confirm it is rejected."
+      - "Confirm the account is subject to the same password policy as all other accounts."
+    countermeasures:
+      - title: "Rotate the default credential immediately"
+        description: "Change the default username/password to a unique, strong credential on the affected service right away."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1027"
+        references: ["https://owasp.org/www-project-top-ten/"]
+      - title: "Enforce a password policy and MFA"
+        description: "Require a minimum complexity/length policy and enable multi-factor authentication for the affected service or account class."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1032"
+      - title: "Add default-credential checks to the deployment pipeline"
+        description: "Bake a post-provisioning check into deployment automation that fails the build if any service still has vendor-default credentials."
+        stage: long_term
+        effort: medium
+
+  web-lfi-001:
+    verification_steps:
+      - "Re-attempt the original path-traversal payload and confirm it no longer returns file contents outside the intended directory."
+      - "Confirm the affected parameter is now validated against an allow-list."
+    countermeasures:
+      - title: "Reject path-traversal sequences at the input boundary"
+        description: "Strip/reject '../' and absolute paths on the affected parameter; add a WAF rule as an immediate stopgap."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1042"
+      - title: "Use an allow-list of filenames instead of user-supplied paths"
+        description: "Replace direct filesystem access with an indirect lookup (e.g. an ID mapped to a fixed, server-controlled file path)."
+        stage: short_term
+        effort: medium
+      - title: "Sandbox file access with least-privilege filesystem permissions"
+        description: "Run the application under an account with read access only to its own web root; disable dangerous PHP settings (allow_url_include, etc.) where applicable."
+        stage: long_term
+        effort: high
+        mitre_mitigation: "M1026"
+
+  cms-wordpress-001:
+    verification_steps:
+      - "Re-run the WordPress plugin/theme/core version scan and confirm no known-vulnerable versions remain."
+      - "Confirm the admin login is now behind MFA and/or an allow-listed IP range."
+    countermeasures:
+      - title: "Update WordPress core, theme, and all plugins"
+        description: "Patch every component flagged by the scan to its latest stable release; remove any plugin that is abandoned/unpatched."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1051"
+        references: ["https://wordpress.org/support/article/hardening-wordpress/"]
+      - title: "Harden wp-admin access"
+        description: "Enable MFA for admin accounts, rate-limit/lock out login attempts, and restrict /wp-admin/ and /wp-login.php by IP where feasible."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1032"
+      - title: "Adopt a patch-management cadence and a staging environment"
+        description: "Set a recurring schedule for core/plugin updates and test them in staging first, so patching stops being reactive."
+        stage: long_term
+        effort: medium
+
+  api-auth-weak-001:
+    verification_steps:
+      - "Re-test the affected endpoint without a valid token/key and confirm it is rejected (401/403)."
+      - "Confirm rate limiting is active by exceeding the configured request threshold."
+    countermeasures:
+      - title: "Require strong, per-client authentication on every endpoint"
+        description: "Ensure no endpoint accepts requests without a valid, non-guessable API key or OAuth token; remove any 'debug' bypass paths."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1032"
+      - title: "Add rate limiting and key rotation"
+        description: "Apply per-client rate limits and support/require periodic API key or token rotation."
+        stage: short_term
+        effort: medium
+      - title: "Move to OAuth2/OIDC with short-lived tokens and scoped permissions"
+        description: "Replace static API keys with short-lived, scoped tokens (OAuth2/OIDC) so a leaked token has limited blast radius."
+        stage: long_term
+        effort: high
+        mitre_mitigation: "M1026"
+
+  auth-ssh-brute-001:
+    verification_steps:
+      - "Confirm password authentication is disabled and only key-based auth succeeds."
+      - "Confirm repeated failed login attempts from one source now trigger a temporary block (fail2ban or equivalent)."
+    countermeasures:
+      - title: "Disable password authentication for SSH"
+        description: "Set 'PasswordAuthentication no' in sshd_config and require key-based authentication only."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1032"
+      - title: "Add brute-force protection"
+        description: "Deploy fail2ban (or equivalent) to temporarily block source IPs after repeated failed attempts."
+        stage: short_term
+        effort: low
+        mitre_mitigation: "M1037"
+      - title: "Restrict SSH exposure and add network-level access control"
+        description: "Move SSH off the public internet where possible (VPN/bastion host) and restrict it by source IP/firewall rule."
+        stage: long_term
+        effort: medium
+        mitre_mitigation: "M1030"
+
+  network-snmp-001:
+    verification_steps:
+      - "Confirm the default/weak community string ('public'/'private') is rejected."
+      - "Confirm SNMP now only responds to queries from the management network."
+    countermeasures:
+      - title: "Change the SNMP community string"
+        description: "Replace default community strings ('public', 'private') with strong, unique values immediately."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1027"
+      - title: "Restrict SNMP to the management network"
+        description: "Firewall SNMP (UDP 161) so it only responds to requests from an authorized management subnet."
+        stage: short_term
+        effort: low
+        mitre_mitigation: "M1030"
+      - title: "Migrate to SNMPv3"
+        description: "Move from SNMPv1/v2c (plaintext community strings) to SNMPv3 with authentication and encryption."
+        stage: long_term
+        effort: medium
+
+  network-rdp-001:
+    verification_steps:
+      - "Confirm RDP is no longer reachable directly from the internet (scan from outside the network)."
+      - "Confirm Network Level Authentication (NLA) is enforced on the host."
+    countermeasures:
+      - title: "Take RDP off the public internet"
+        description: "Firewall RDP (TCP 3389) from external access immediately; require VPN or bastion access instead."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1030"
+        references: ["https://attack.mitre.org/techniques/T1021/001/"]
+      - title: "Enforce Network Level Authentication and MFA"
+        description: "Require NLA and, where supported, MFA for all RDP sessions."
+        stage: short_term
+        effort: medium
+        mitre_mitigation: "M1032"
+      - title: "Adopt a jump-host / PAM solution for remote administration"
+        description: "Route all remote administrative access through a hardened, monitored jump host rather than direct RDP to endpoints."
+        stage: long_term
+        effort: high
+        mitre_mitigation: "M1026"
+
+# Used when an opportunity's attack_pattern_id has no specific catalog
+# entry above - keeps every opportunity actionable rather than silent.
+domain_fallback:
+  WEB:
+    verification_steps: ["Re-test the affected endpoint after the fix and confirm the original finding no longer reproduces."]
+    countermeasures:
+      - title: "Validate and encode all user input/output on the affected endpoint"
+        description: "Apply input validation and context-aware output encoding as a general web-application hardening measure."
+        stage: immediate
+        effort: low
+      - title: "Add the finding's OWASP category to your SAST/DAST ruleset"
+        description: "Ensure your CI security scanning would now catch a recurrence of this class of issue."
+        stage: long_term
+        effort: medium
+  AUTH:
+    verification_steps: ["Confirm the affected account/service now requires strong authentication."]
+    countermeasures:
+      - title: "Enforce strong credentials and MFA"
+        description: "Apply a strong password policy and multi-factor authentication to the affected account or service."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1032"
+      - title: "Review authentication logging and alerting"
+        description: "Ensure failed/anomalous authentication attempts against this service are logged and alerted on."
+        stage: long_term
+        effort: medium
+  SMB:
+    verification_steps: ["Confirm SMB signing/encryption is enforced and re-test the finding."]
+    countermeasures:
+      - title: "Enforce SMB signing and restrict exposure"
+        description: "Require SMB signing and limit SMB exposure to only the hosts/segments that need it."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1030"
+  CMS:
+    verification_steps: ["Confirm all CMS core/plugin/theme components are on patched versions."]
+    countermeasures:
+      - title: "Patch the CMS core, theme, and plugins"
+        description: "Update all outdated CMS components and remove unused plugins/themes."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1051"
+  API:
+    verification_steps: ["Re-test the affected endpoint's authentication and rate limiting."]
+    countermeasures:
+      - title: "Require strong per-client authentication and rate limiting"
+        description: "Ensure the affected API endpoint requires a valid credential and is protected against abuse."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1032"
+  NETWORK:
+    verification_steps: ["Re-scan the affected port/service from outside its intended network zone."]
+    countermeasures:
+      - title: "Restrict exposure of the affected service"
+        description: "Firewall the affected port/service to only the network segment that legitimately needs it."
+        stage: immediate
+        effort: low
+        mitre_mitigation: "M1030"
+  WIRELESS:
+    verification_steps: ["Confirm the wireless network now requires strong (WPA2/3-Enterprise) authentication."]
+    countermeasures:
+      - title: "Move to WPA2/3-Enterprise and rotate any shared credentials"
+        description: "Replace weak or shared wireless authentication with per-user enterprise authentication."
+        stage: immediate
+        effort: medium
+        mitre_mitigation: "M1032"

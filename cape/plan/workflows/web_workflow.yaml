@@ -1,0 +1,60 @@
+name: web_assessment
+domain: WEB
+steps:
+  - name: Web Technology Fingerprinting
+    description: Identify web server, frameworks, CMS, and technology stack
+    tool: whatweb
+    tool_args_template: "whatweb --log-json /tmp/whatweb_{target}.json {url}"
+    produces: [tech_fingerprint]
+    duration_seconds: 60
+    requires_previous: false
+    operator_action_required: false
+
+  - name: Directory Discovery
+    description: Enumerate hidden directories and files via brute force
+    tool: gobuster
+    tool_args_template: "gobuster dir -u {url} -w /usr/share/wordlists/dirb/common.txt -o /tmp/gobuster_{target}.txt"
+    consumes: [tech_fingerprint]
+    produces: [directory_list]
+    duration_seconds: 300
+    requires_previous: false
+    operator_action_required: false
+
+  - name: Web Vulnerability Scan
+    description: Automated vulnerability scanning with nikto
+    tool: nikto
+    tool_args_template: "nikto -h {target} -output /tmp/nikto_{target}.csv -Format csv"
+    produces: [vuln_report]
+    duration_seconds: 600
+    requires_previous: false
+    operator_action_required: false
+
+  - name: Authentication Review
+    description: Manually review login forms, session management, and auth mechanisms
+    tool: null
+    tool_args_template: null
+    consumes: [directory_list]
+    produces: [auth_review]
+    duration_seconds: 900
+    operator_action_required: true
+    notes: "Manually test: default creds, password policies, MFA bypass, session fixation"
+
+  - name: SQL Injection Testing
+    description: Test for SQL injection vulnerabilities using sqlmap guidance
+    tool: sqlmap
+    tool_args_template: "sqlmap -u {target_url} --dbs --batch --level 3 --risk 2"
+    consumes: [directory_list]
+    produces: [sqli_results]
+    duration_seconds: 1200
+    operator_action_required: true
+    notes: "Identify injectable parameters first. Run with operator supervision."
+
+  - name: XSS Testing
+    description: Test for reflected and stored XSS vulnerabilities
+    tool: null
+    tool_args_template: null
+    consumes: [directory_list]
+    produces: [xss_results]
+    duration_seconds: 600
+    operator_action_required: true
+    notes: "Use xsser or manual payloads. Test all input fields and URL parameters."

@@ -1,0 +1,22 @@
+name: network
+description: "Network-wide scan - all ports, SNMP, service enumeration"
+scan_timeout: 3600
+plugin_timeout: 900
+plugin_groups:
+  - name: port_scanners
+    plugins: [masscan, nmap]
+    concurrency: sequential
+  - name: network_services
+    plugins: [snmp-check]
+    concurrency: thread_pool
+    max_workers: 3
+plugins:
+  nmap:
+    custom:
+      profile: network
+  masscan:
+    ports: "1-65535"
+    rate: 2000
+  snmp-check:
+    extra_args: []
+conditionals: {}

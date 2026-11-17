@@ -1,0 +1,30 @@
+name: api_assessment
+domain: API
+steps:
+  - name: API Endpoint Discovery
+    description: Discover API endpoints via directory brute force
+    tool: gobuster
+    tool_args_template: "gobuster dir -u {url} -w /usr/share/wordlists/dirb/big.txt -o /tmp/gobuster_api_{target}.txt"
+    produces: [api_endpoints]
+    duration_seconds: 600
+    requires_previous: false
+    operator_action_required: false
+
+  - name: API Vulnerability Scan
+    description: Automated API security scanning with ZAP
+    tool: zaproxy
+    tool_args_template: "zaproxy -cmd -quickurl {url} -quickout /tmp/zap_{target}.json"
+    consumes: [api_endpoints]
+    produces: [api_vulns]
+    duration_seconds: 600
+    operator_action_required: false
+
+  - name: Authentication Testing
+    description: Test API authentication and authorization controls
+    tool: null
+    tool_args_template: null
+    consumes: [api_endpoints]
+    produces: [auth_results]
+    duration_seconds: 900
+    operator_action_required: true
+    notes: "Test: missing auth headers, JWT manipulation, IDOR, privilege escalation"

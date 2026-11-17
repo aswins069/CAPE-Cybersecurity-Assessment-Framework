@@ -1,0 +1,28 @@
+name: api
+description: "API endpoint discovery and vulnerability scanning"
+scan_timeout: 1200
+plugin_timeout: 400
+plugin_groups:
+  - name: port_scan
+    plugins: [nmap]
+    concurrency: sequential
+  - name: api_discovery
+    plugins: [gobuster, nikto]
+    concurrency: thread_pool
+    max_workers: 2
+  - name: api_vuln
+    plugins: [zap]
+    concurrency: sequential
+plugins:
+  nmap:
+    custom:
+      profile: quick
+  gobuster:
+    wordlist: /usr/share/wordlists/dirb/big.txt
+    custom:
+      mode: dir
+  nikto:
+    extra_args: []
+  zap:
+    extra_args: []
+conditionals: {}

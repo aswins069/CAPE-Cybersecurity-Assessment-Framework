@@ -1,0 +1,30 @@
+name: cms_assessment
+domain: CMS
+steps:
+  - name: CMS Detection
+    description: Identify CMS platform and version
+    tool: whatweb
+    tool_args_template: "whatweb --log-json /tmp/whatweb_{target}.json {url}"
+    produces: [cms_type]
+    duration_seconds: 60
+    requires_previous: false
+    operator_action_required: false
+
+  - name: WordPress Scan
+    description: Enumerate WordPress plugins, themes, and known vulnerabilities
+    tool: wpscan
+    tool_args_template: "wpscan --url {url} --enumerate p,t,u --format json --output /tmp/wpscan_{target}.json"
+    consumes: [cms_type]
+    produces: [cms_vulns]
+    duration_seconds: 600
+    operator_action_required: false
+
+  - name: CMS Exploit Assessment
+    description: Manually verify and attempt exploitation of found vulnerabilities
+    tool: null
+    tool_args_template: null
+    consumes: [cms_vulns]
+    produces: [exploitation_results]
+    duration_seconds: 900
+    operator_action_required: true
+    notes: "Review CVEs from wpscan. Use searchsploit for available exploits."

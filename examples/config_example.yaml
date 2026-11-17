@@ -1,0 +1,33 @@
+# CAPE - Example Configuration File
+# Save as: ~/.cyber_orchestrator/config.yaml
+# Environment variables with CO_ prefix override these values.
+
+# Framework display name (shown in reports and CLI)
+framework_name: "CAPE"
+
+# Database URL
+# SQLite (default): sqlite:///~/.cyber_orchestrator/db/co.db
+# PostgreSQL: postgresql://user:pass@localhost:5432/cyber_orchestrator
+db_url: "sqlite:///~/.cyber_orchestrator/db/co.db"
+
+# Workspace root directory (one subdirectory per target)
+workspace_root: "~/.cyber_orchestrator/workspaces"
+
+# Logging
+log_level: "INFO"   # DEBUG, INFO, WARNING, ERROR
+log_file: "~/.cyber_orchestrator/logs/co.log"
+audit_log_file: "~/.cyber_orchestrator/logs/audit.log"
+
+# Scan timeouts (seconds)
+default_scan_timeout: 3600     # 1 hour per scan
+default_plugin_timeout: 300    # 5 minutes per plugin
+
+# Concurrency
+max_parallel_plugins: 4
+
+# Optional integrations
+enable_openvas: false
+
+# Override paths (usually auto-detected from package location)
+# report_templates_dir: "/path/to/templates"
+# kb_dir: "/path/to/knowledge_base"

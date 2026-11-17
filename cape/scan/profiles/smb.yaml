@@ -1,0 +1,15 @@
+name: smb
+description: "SMB vulnerability and enumeration assessment"
+scan_timeout: 900
+plugin_timeout: 300
+plugin_groups:
+  - name: smb_scanners
+    plugins: [nmap, enum4linux]
+    concurrency: sequential
+plugins:
+  nmap:
+    custom:
+      profile: smb
+  enum4linux:
+    extra_args: ["-a"]
+conditionals: {}

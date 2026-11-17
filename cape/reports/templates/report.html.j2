@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>CO Report - {{ report.target }}</title>
+<style>body{font-family:Arial,sans-serif;margin:20px;background:#fff;color:#222;}
+h1{color:#1a1a2e;}table{width:100%;border-collapse:collapse;}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;}
+th{background:#1a1a2e;color:#fff;}.critical{color:#dc2626;font-weight:bold;}
+.high{color:#ea580c;font-weight:bold;}.medium{color:#ca8a04;}.low{color:#2563eb;}</style>
+</head>
+<body>
+<h1>CAPE Report: {{ report.target }}</h1>
+<p>Generated: {{ report.generated_at }} | Operator: {{ report.operator }}</p>
+<h2>Summary</h2>
+<table><tr><th>Critical</th><th>High</th><th>Medium</th><th>Low</th><th>Info</th></tr>
+<tr><td class="critical">{{ summary.critical_count }}</td>
+<td class="high">{{ summary.high_count }}</td>
+<td class="medium">{{ summary.medium_count }}</td>
+<td class="low">{{ summary.low_count }}</td>
+<td>{{ summary.info_count }}</td></tr></table>
+<h2>Findings</h2>
+<table><tr><th>Severity</th><th>Title</th><th>Tool</th><th>Host</th><th>Port</th></tr>
+{% for f in findings %}
+<tr><td class="{{ f.severity.value.lower() }}">{{ f.severity.value }}</td>
+<td>{{ f.title }}</td><td>{{ f.source_tool }}</td>
+<td>{{ f.host }}</td><td>{{ f.port or '-' }}</td></tr>
+{% endfor %}</table>
+<h2>Opportunities</h2>
+{% for o in opportunities %}
+<div><h3>{{ o.name }} (Score: {{ "%.1f"|format(o.score) }})</h3>
+<p>{{ o.description }}</p>
+{% if o.mitre_technique %}<p>MITRE: {{ o.mitre_technique }}</p>{% endif %}
+</div>{% endfor %}
+</body></html>
