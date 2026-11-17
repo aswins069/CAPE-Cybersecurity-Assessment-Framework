@@ -7,7 +7,6 @@ name = "cape"
 version = "1.0.0"
 description = "CAPE: a modular cybersecurity assessment framework for authorized security testing, explainability, and auditability"
 readme = "README.md"
-license = {text = "MIT"}
 requires-python = ">=3.11"
 authors = [
     {name = "CAPE Project"}
@@ -17,7 +16,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
