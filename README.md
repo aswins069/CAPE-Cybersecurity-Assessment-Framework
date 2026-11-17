@@ -232,4 +232,4 @@ Supported report formats include JSON, HTML, and PDF, subject to the installed d
 
 ## License
 
-MIT License. See the repository's license file or project distribution terms for the applicable text.
+No open-source license has been applied to this project at present. All rights are reserved by the project author. Please contact the author for permission before copying, modifying, or redistributing this software.
