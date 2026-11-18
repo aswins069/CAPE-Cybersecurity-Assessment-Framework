@@ -18,6 +18,14 @@ SCAN → SHOW → EXPLAIN → PLAN → ATTACK → DIFF → REPORT
 
 The installed command is **`cape`** (as declared by the project's `pyproject.toml`).
 
+## Why CAPE is useful
+
+- **One interface for many tools:** Scanner and verification tools are run through a single CLI instead of being operated separately.
+- **Consistent results:** Output from different tools is normalized into a common `Finding` structure, so it can be analyzed and compared together.
+- **Controlled verification:** Attack checks apply target validation, precondition checks, and explicit operator confirmation.
+- **Traceable evidence:** Assessment results and execution evidence are recorded for later review, supported by tamper-evident audit records.
+- **Extensible design:** The modular architecture allows additional scanner plugins and assessment modules to be added.
+
 ## Key capabilities
 
 - **Security scanning:** Run configured scanner plugins and collect results into CAPE's finding model.
@@ -38,17 +46,44 @@ The installed command is **`cape`** (as declared by the project's `pyproject.tom
 
 ### Install
 
+Clone the repository (or extract the downloaded ZIP), then open a terminal in the directory that contains `pyproject.toml`.
+
+```bash
+git clone <repository-url>
+cd CAPE
+
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+
+# Install CAPE and its declared dependencies
+python -m pip install -e .
+```
+
+Alternatively, install only the dependencies listed in the requirements file:
+
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-For the full setup, including system packages and optional tools, see [INSTALL.md](INSTALL.md).
+For the full setup, including system packages and optional tools, see [INSTALL.md](INSTALL.md). The software CAPE needs is listed under [Requirements](#requirements).
 
 ### Check the installation
 
 ```bash
 cape doctor
 ```
+
+This checks the installation and the availability of external tools.
+
+### Launch CAPE
+
+```bash
+cape
+```
+
+This starts the interactive menu, from which you can navigate the available options or run individual commands.
 
 ### Example assessment workflow
 
@@ -82,6 +117,57 @@ cape report http://127.0.0.1:3000 --audience engineer --format json
 ```
 
 Check `cape <command> --help` for the options available in the installed version.
+
+## Requirements
+
+| Requirement | Specification |
+|---|---|
+| Recommended OS | Kali Linux |
+| Other supported OS | Ubuntu 22.04+ or Debian 12+ |
+| Python | 3.11 or newer |
+| Package manager | pip |
+| Version control | Git (for cloning the repository) |
+| Database | SQLite (default local setup) |
+| Privileges | Some scanning tools may require elevated privileges |
+
+### External security tools
+
+These are used by CAPE's scanner plugins and verification integrations. Each is needed only for the functionality that uses it, and some modules provide limited Python-based fallback checks when a tool is unavailable.
+
+| Tool | Purpose |
+|---|---|
+| Nmap | Network discovery and service enumeration |
+| Masscan | High-speed port scanning |
+| Nikto | Web-server security scanning |
+| WhatWeb | Web technology identification |
+| Gobuster | Directory and content enumeration |
+| SQLMap | SQL injection assessment integration |
+| WPScan | WordPress security assessment |
+| OWASP ZAP | Web application security testing integration |
+| Dirb | Web content discovery |
+| enum4linux | SMB enumeration |
+| nbtscan | NetBIOS information gathering |
+
+On Kali Linux:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y nmap masscan nikto whatweb gobuster dirb sqlmap wpscan enum4linux nbtscan
+```
+
+### Reporting dependencies
+
+PDF report generation may need additional system libraries (Pango, HarfBuzz, and related rendering dependencies):
+
+```bash
+sudo apt-get install -y libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
+```
+
+### Optional requirements
+
+- **PostgreSQL:** Optional database backend (`python -m pip install -e ".[postgres]"`). SQLite is sufficient for a local setup.
+- **Development dependencies:** `python -m pip install -e ".[dev]"` for development and testing.
+- **Network access:** Needed for network-based scanning tools and remote assessment targets.
 
 ## Bounded lab attack checks
 
@@ -204,10 +290,6 @@ cape attack <target> [--module NAME] [--list]
 cape diff <target> [options]
 cape audit [options]
 cape clients list
-cape clients create <client_id> [--name NAME] [--contact EMAIL]
-cape clients use <client_id>
-cape clients report <client_id> [options]
-cape clients audit <client_id> [options]
 cape doctor [--fix]
 cape report <target> [options]
 cape menu
@@ -223,6 +305,158 @@ cape menu
 | `full` | Combined content for the available report audiences. |
 
 Supported report formats include JSON, HTML, and PDF, subject to the installed dependencies and report configuration.
+
+## Advanced usage
+
+CAPE provides configurable commands that let the operator control the assessment workflow, select scan profiles, choose verification modules, compare assessment results, and generate reports in different formats. This section expands on the quick start above.
+
+### Command-line arguments and options
+
+| Command | Arguments / options | Purpose |
+|---|---|---|
+| `cape scan` | `<profile> <target>` | Select a scan profile and target. |
+| `cape show` | `<target>` | Display findings and identified opportunities. |
+| `cape explain` | `<target> --all` | Explain all available opportunity scores. |
+| `cape plan` | `<target> --format graph` | Generate an assessment plan in graph format. |
+| `cape attack` | `<target> --list` | List available assessment modules. |
+| `cape diff` | `<target> --last 2` | Compare the two most recent assessments. |
+| `cape audit` | `--verify` | Verify the integrity of the audit chain. |
+| `cape report` | `<target> --audience <type> --format <format>` | Generate a report for a selected audience and format. |
+
+To view the available arguments for an individual command, use:
+
+```bash
+cape --help
+cape scan --help
+cape attack --help
+cape report --help
+```
+
+### Configuring scan profiles
+
+CAPE uses YAML-based scan profiles stored in:
+
+```text
+cape/scan/profiles/
+```
+
+A profile determines which scanner plugins are selected and which options are passed to them. The available profiles (`quick`, `recon`, `web`, `network`, `vuln`, `full`, `api`, `cms`, and `smb`) are described in [Scan profiles](#scan-profiles).
+
+```bash
+# Faster initial assessment of a lab host
+cape scan quick 192.168.1.100
+
+# Web-focused scan of a local application
+cape scan web http://127.0.0.1:3000
+```
+
+Select the profile that matches the permitted assessment scope. The available scanner tools and results depend on the installed dependencies and the profile configuration.
+
+### Adjusting assessment and verification settings
+
+The assessment workflow is adjusted by choosing a profile, a target, and the verification modules available for that target.
+
+```bash
+# Select a target and scan profile
+cape scan web http://127.0.0.1:3000
+
+# List available attack modules
+cape attack http://127.0.0.1:3000 --list
+
+# Select a particular module
+cape attack 127.0.0.1 --module MODULE_NAME
+```
+
+The module name must match an available registered module. The operator must follow the interactive prompts and confirmation requirements before a verification check is executed.
+
+### Explainability and assessment planning
+
+CAPE lets the operator inspect why an opportunity was identified and generate an ordered assessment plan.
+
+```bash
+# Explain all available opportunity scores
+cape explain 192.168.1.100 --all
+
+# Generate an assessment plan in graph format
+cape plan 192.168.1.100 --format graph
+```
+
+The plan is generated from the opportunities identified by the SHOW module and the corresponding YAML workflow templates in `cape/plan/workflows/`.
+
+### Generating customized reports
+
+CAPE supports three report formats:
+
+- **JSON:** structured data for programmatic processing.
+- **HTML:** browser-readable assessment reports.
+- **PDF:** portable reports suitable for sharing and documentation.
+
+Combine a format with one of the report audiences (`ciso`, `auditor`, `engineer`, or `full`) described in [Report audiences](#report-audiences):
+
+```bash
+# Management report
+cape report 192.168.1.100 --audience ciso --format pdf
+
+# Auditor report
+cape report 192.168.1.100 --audience auditor --format html
+
+# Technical report
+cape report 192.168.1.100 --audience engineer --format json
+```
+
+### Comparing assessments and verifying audit integrity
+
+CAPE provides options for monitoring changes between assessments and checking audit history.
+
+```bash
+# Compare the two latest assessments
+cape diff 192.168.1.100 --last 2
+
+# Verify the audit chain
+cape audit --verify
+```
+
+The comparison identifies new, fixed, persistent, regressed, and improved findings. Audit verification checks the integrity of the hash-linked audit records.
+
+### End-to-end example
+
+The following commands demonstrate a complete assessment workflow against an authorized local lab:
+
+```bash
+# Check the environment
+cape doctor
+
+# Start a web scan
+cape scan web http://127.0.0.1:3000
+
+# Review findings and opportunities
+cape show http://127.0.0.1:3000
+
+# Explain the identified opportunities
+cape explain http://127.0.0.1:3000 --all
+
+# List available verification modules
+cape attack http://127.0.0.1:3000 --list
+
+# Start an interactive verification session
+cape attack http://127.0.0.1:3000
+
+# Generate a technical report
+cape report http://127.0.0.1:3000 --audience engineer --format pdf
+
+# Verify audit integrity
+cape audit --verify
+```
+
+> **Note:** Attack verification is opportunity-driven. The available modules depend on the identified opportunities. Follow the interactive prompts and explicit confirmation requirements before running any check.
+
+### Security considerations
+
+- Use CAPE only against systems for which explicit authorization has been obtained.
+- Select scan profiles according to the permitted assessment scope.
+- Verify the target before starting scanning or verification.
+- Review module requirements and execution confirmations.
+- Treat scanner observations and identified opportunities as assessment results, not automatic proof of exploitability.
 
 ## Installation and security
 
