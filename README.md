@@ -2,13 +2,16 @@
 
 **An evidence-oriented cybersecurity assessment framework for authorized security testing.**
 
+> ### **🖥️ User-friendly TUI — commands are optional**
+> **Just run `cape` to open the guided, arrow-key menu (TUI). You can scan, review findings, plan, run bounded checks, compare results and generate reports without typing any commands.** Every action is also available as a command for scripting and advanced use.
+
 CAPE brings security scanning, finding analysis, assessment planning, bounded attack checks, evidence collection, reporting, and auditability into one command-line workflow.
 
 > **Authorization notice:** Use CAPE only against systems you own or are explicitly authorized to assess. The six bounded attack checks described below enforce a localhost/private-IP lab scope. That technical restriction is a safeguard, not proof of authorization.
 
 ## Overview
 
-CAPE is a CLI-first framework designed primarily for Kali Linux and other Python 3.11+ environments. It orchestrates security tools and organizes assessment results through a shared workspace and normalized finding model.
+CAPE is a terminal-based framework with a guided TUI menu (and optional CLI commands), designed primarily for Kali Linux and other Python 3.11+ environments. It orchestrates security tools and organizes assessment results through a shared workspace and normalized finding model.
 
 ```text
 SCAN → SHOW → EXPLAIN → PLAN → ATTACK → DIFF → REPORT
@@ -83,7 +86,7 @@ This checks the installation and the availability of external tools.
 cape
 ```
 
-This starts the interactive menu, from which you can navigate the available options or run individual commands.
+This starts the interactive TUI menu. No commands need to be memorized: move with the arrow keys (or `j`/`k`), press `Enter` to select, `Esc` or `b` to go back, and `q` to quit. You can also run individual commands directly, as shown below.
 
 ### Example assessment workflow
 
